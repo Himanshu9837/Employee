@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Employee Info</title>
+    <style type="text/css">
+        body {
+            background-color: lightblue;
+        }
+    </style>
+    <link rel="stylesheet" href="stylesheets/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+        integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $("#form1").submit(function (event) {
+                event.preventDefault();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/employee',
+                    data: $('#form1').serialize(),
+                    dataType: "json",
+                    success: function (response) {
+                        clearInputs();
+                        Show();
+                        //$( "#a" ).click();
+                    },
+                    error: function () {
+                    }
+                })
+            });
+
+            $('table').on('click', '.update-button', function () {
+                let rowEl = $(this).closest('tr');
+                let id = rowEl.find('.id').text();
+                let firstname = rowEl.find('.firstname').val();
+                let lastname = rowEl.find('.lastname').val();
+                let department = rowEl.find('.department').val();
+                let salary = rowEl.find('.salary').val();
+
+                $.ajax({
+                    url: '/employee',
+                    method: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({id:id, firstname:firstname,lastname:lastname ,department:department, salary:salary }),
+                    success: function (response) {
+                        console.log(response);
+                        $("#a").click();
+                    }
+                });
+
+            });
+            $('table').on('click', '.delete-button', function () {
+                let rowEl = $(this).closest('tr');
+                let id = rowEl.find('.id').text();
+
+                $.ajax({
+                    url: '/employee',
+                    method: 'DELETE',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ id: id }),
+                    success: function (response) {
+                        console.log("response" + response);
+                        $("#a").click();
+                    }
+                });
+            });
+
+            $("#a").click(function () {
+                Show();
+            });
+            function Show() {
+                $.ajax({
+                    type: 'GET',
+                    url: '/show',
+                    dataType: "json",
+                    success: function (response) {
+                        console.log(response);
+                        // let tbodyEl = $('tbody');
+                        let tbodyEl = $("#myTable > tbody")
+
+                        tbodyEl.html('');
+
+                        response.forEach(function (product) {
+                            tbodyEl.append('\
+                        <tr>\
+                        <td style="display:none;" class="id">' + product._id + '</td>\
+                        <td><input type="text" class="firstname form-control" value="' + product.firstname + '"></td>\
+                        <td><input type="text" class="lastname form-control" value="' + product.lastname + '"></td>\
+                        <td><input type="text" class="department form-control" value="' + product.department + '"></td>\
+                        <td><input type="number" class="salary form-control" value="' + product.salary + '"></td>\
+                        <td>\
+                        <button class="update-button btn btn-secondary">UPDATE</button>\
+                        <button class="delete-button btn btn-danger">DELETE</button>\
+                        </td>\
+                        </tr>\
+                        ');
+                        });
+                    },
+                    error: function () {
+                    }
+                })
+            }
+
+            function clearInputs() {
+                $("#firstname").val('');
+                $("#lastname").val('');
+                $("#department").val('');
+                $("#salary").val('');
+            }
+
+
+        });
+    </script>
+</head>
+
+<body>
+    <button id="a" class="btn btn-primary">Show</button>
+    <br />
+    <br />
+    <form id="form1" method="POST">
+        <table style="margin-left:auto; margin-right:auto;">
+            <tr>
+                <td><label>FirstName</label></td>
+                <td><input class="form-control" type="text" name="firstname" id="firstname" required></td>
+            </tr>
+            <tr>
+                <td><label>LastName</label></td>
+                <td><input class="form-control" type="text" name="lastname" id="lastname" required></td>
+            </tr>
+            <tr>
+                <td><label>Deprtment</label></td>
+                <td><input class="form-control" type="text" name="department" id="department" required></td>
+            </tr>
+            <tr>
+                <td><label>Salary</label></td>
+                <td><input class="form-control" type="Number" name="salary" id="salary" required></td>
+            </tr>
+        </table>
+        <br />
+        <button type="Submit" id="add" class="btn btn-success">Submit</button>
+    </form>
+    <br />
+    <table id='myTable' style="margin-left:auto; margin-right:auto;">
+        <thead>
+            <tr>
+                
+                <th>FirstName</th>
+                <th>LastName</th>
+                <th>Department</th>
+                <th>Salay</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+</body>
+
+</html>
